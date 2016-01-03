@@ -1,5 +1,4 @@
 import types
-
 import requests as rq
 
 
@@ -18,9 +17,9 @@ class PinterestAPI(object):
 
     def method(self, method, endpoint, params=None):
         url = '{protocol}://{netloc}/{path}'.format(
-            protocol=self.protocol,
-            netloc=self.host,
-            path=self.base_path + '/' + endpoint
+                protocol=self.protocol,
+                netloc=self.host,
+                path=self.base_path + '/' + endpoint
         )
 
         if params:
@@ -50,14 +49,10 @@ class BoardsApi(object):
 
     def __init__(self, api: PinterestAPI):
         self.api = api
-
         self._board_id = None
-
         self._board_owner = None
         self._board_name = None
-
         self._board_slug = None
-
         self._cursor = None
 
     @property
@@ -80,7 +75,6 @@ class BoardsApi(object):
         :return:
         """
         self._board_id = board_id
-
         self._board_owner = owner
         self._board_name = name
 
@@ -105,7 +99,8 @@ class BoardsApi(object):
         if self._cursor:
             params.update({'cursor': self._cursor})
 
-        if self._board_slug is types
+        if not self._board_slug:
+            return None
         endpoint_full = self.endpoint + '/' + self._board_slug + '/pins'
 
         response = self.api.method('get', endpoint_full, params)
@@ -119,7 +114,6 @@ class BoardsApi(object):
     def get(self, params=None):
         if not self._board_slug:
             return None
-
         endpoint_full = self.endpoint + '/' + self._board_slug
         response = self.api.method('get', endpoint_full, params)
         return response
@@ -129,6 +123,6 @@ class BoardsApi(object):
 
     def delete(self):
         raise NotImplementedError
-    
+
     def update(self):
         raise NotImplementedError
