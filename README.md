@@ -1,7 +1,7 @@
 # Python Pinterest API
  Requirements:
  > requests
-
+ > Python 3.x
 Examples
 ---
  ```python
