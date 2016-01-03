@@ -27,6 +27,9 @@ class PinterestAPI(object):
         else:
             params = {}
         params.update({'access_token': self._access_token})
+        for key in params:
+            if isinstance(params[key], list):
+                params[key] = ','.join(params[key])
 
         response = self._http.request(
                 method=method,
