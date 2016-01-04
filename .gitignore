@@ -1,6 +1,6 @@
 .idea/
-.build/
-.dist/
-.python_pinterest.egg-info/
+build/
+dist/
+python_pinterest.egg-info/
 *.pyc
 main.py
