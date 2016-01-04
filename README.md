@@ -24,8 +24,16 @@ params = {
     'limit':'10'
 }
 board = api.boards.board(owner='dales3d', name='cosplay')
+pins = []
 while True:
-    data = board.get_pins(params)
+    response = board.get_pins(params)
+    pins.extend(response.get('data',[]))
     if not board.has_next_page:
         break
+        
+# Create Board
+ans = api.boards.create('skiflab2', 'description some')
+
+# Delete Board
+ans = api.boards.board(owner='dales3d', name='skiflab2').delete()
 ```
