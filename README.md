@@ -37,3 +37,10 @@ ans = api.boards.create('skiflab2', 'description some')
 # Delete Board
 ans = api.boards.board(owner='dales3d', name='skiflab2').delete()
 ```
+
+## Install
+```sh
+git clone https://github.com/maxim-popkov/python-pinterest.git
+cd python-pinterest
+python setup.py install
+```
