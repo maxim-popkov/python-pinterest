@@ -1,5 +1,5 @@
-import types
 import requests as rq
+from urllib.parse import urlencode
 
 
 class PinterestAPI(object):
@@ -15,7 +15,7 @@ class PinterestAPI(object):
     def boards(self):
         return BoardsApi(self)
 
-    def method(self, method, endpoint, params=None):
+    def method(self, method, endpoint, params=None, form_data=None):
         url = '{protocol}://{netloc}/{path}'.format(
                 protocol=self.protocol,
                 netloc=self.host,
@@ -31,15 +31,29 @@ class PinterestAPI(object):
             if isinstance(params[key], list):
                 params[key] = ','.join(params[key])
 
-        response = self._http.request(
-                method=method,
-                url=url,
-                params=params
-        )
+        # requests bug, request('post',...) with url query dont work properly
+        response = None
+        if method.lower() == 'get':
+            response = self._http.get(
+                    url=url,
+                    params=params
+            )
+        elif method.lower() == 'post':
+            response = self._http.post(
+                url=url + '/?' + urlencode(params),
+                data=form_data
+            )
+        elif method.lower() == 'delete':
+            response = self._http.delete(
+                url=url + '/?' + urlencode(params)
+            )
+        else:
+            raise Exception('Not Implemented Method')
+
         if response.ok:
             response = response.json()
         else:
-            raise Exception('Bad Response')
+            response = {}
 
         return response
 
@@ -64,29 +78,6 @@ class BoardsApi(object):
         :return: True if response has next page
         """
         return self._cursor is not None
-
-    def board(self,
-              board_id=None,
-              owner=None,
-              name=None):
-        """
-        Select board
-        example: api.boards.board(owner='dales3d', name='cosplay').get()
-        :param board_id:
-        :param owner: board
-        :param name:
-        :return:
-        """
-        self._board_id = board_id
-        self._board_owner = owner
-        self._board_name = name
-
-        if board_id:
-            self._board_slug = board_id
-        elif name and owner:
-            self._board_slug = owner + '/' + name
-
-        return self
 
     def get_pins(self, params=None) -> dict:
         """
@@ -118,14 +109,47 @@ class BoardsApi(object):
         if not self._board_slug:
             return None
         endpoint_full = self.endpoint + '/' + self._board_slug
-        response = self.api.method('get', endpoint_full, params)
+        response = self.api.method('GET', endpoint_full, params)
         return response
 
-    def create(self):
-        raise NotImplementedError()
+    def create(self, name, desc=None):
+        form_data = {
+            'name': name,
+            'description': desc
+        }
+        endpoint_full = self.endpoint
+        response = self.api.method('POST', endpoint_full, form_data=form_data)
+        return response
+
+    def board(self,
+              owner=None,
+              name=None,
+              board_id=None,):
+        """
+        Select board
+        example: api.boards.board(owner='dales3d', name='cosplay').get()
+        :param board_id:
+        :param owner: board
+        :param name:
+        :return:
+        """
+        self._board_id = board_id
+        self._board_owner = owner
+        self._board_name = name
+
+        if board_id:
+            self._board_slug = board_id
+        elif name and owner:
+            self._board_slug = owner + '/' + name
+
+        return self
 
     def delete(self):
-        raise NotImplementedError
+        if not self._board_slug:
+            return None
+        endpoint_full = self.endpoint + '/' + self._board_slug
+        response = self.api.method('DELETE', endpoint_full)
+        return response
 
     def update(self):
         raise NotImplementedError
