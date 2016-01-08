@@ -3,4 +3,5 @@ build/
 dist/
 python_pinterest.egg-info/
 *.pyc
+*.txt
 main.py
